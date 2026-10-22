@@ -1,0 +1,305 @@
+{
+  "entities": {
+    "Medicine": {
+      "title": "Medicine",
+      "description": "An Ayurvedic medicine batch record with expiry and storage tracking",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the Ayurvedic medicine",
+          "maxLength": 200
+        },
+        "batchNumber": {
+          "type": "string",
+          "description": "Unique manufacturing batch number",
+          "maxLength": 100
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Current available quantity in inventory"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit (Tablets, Bottles, Churna g, etc.)",
+          "maxLength": 50
+        },
+        "category": {
+          "type": "string",
+          "description": "Ayurvedic dosage form or category",
+          "maxLength": 100
+        },
+        "manufacturingDate": {
+          "type": "string",
+          "description": "Manufacturing date YYYY-MM-DD",
+          "maxLength": 20
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "Expiry date YYYY-MM-DD",
+          "maxLength": 20
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Supplier or manufacturer name",
+          "maxLength": 200
+        },
+        "supplierContact": {
+          "type": "string",
+          "description": "Supplier phone or email",
+          "maxLength": 100
+        },
+        "storageLocation": {
+          "type": "string",
+          "description": "Room, rack, or shelf location in pharmacy",
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of formulation or indications",
+          "maxLength": 1000
+        },
+        "notes": {
+          "type": "string",
+          "description": "Staff remarks or batch warnings",
+          "maxLength": 1000
+        },
+        "isSample": {
+          "type": "boolean",
+          "description": "Whether this batch is fictional demonstration data"
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "UID of the user who recorded this batch",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last modification",
+          "maxLength": 50
+        }
+      },
+      "required": ["name", "batchNumber", "quantity", "expiryDate"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Expiry alert notification for staff",
+      "type": "object",
+      "properties": {
+        "medicineId": {
+          "type": "string",
+          "description": "ID of the associated medicine batch",
+          "maxLength": 128
+        },
+        "medicineName": {
+          "type": "string",
+          "description": "Name of the medicine",
+          "maxLength": 200
+        },
+        "batchNumber": {
+          "type": "string",
+          "description": "Batch number of the medicine",
+          "maxLength": 100
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity at time of alert"
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "Expiry date YYYY-MM-DD",
+          "maxLength": 20
+        },
+        "alertType": {
+          "type": "string",
+          "description": "Type of alert (expired, expires_today, expires_1_day, expires_3_days, expires_7_days)",
+          "enum": ["expired", "expires_today", "expires_1_day", "expires_3_days", "expires_7_days", "expiring_soon"],
+          "maxLength": 50
+        },
+        "daysDiff": {
+          "type": "number",
+          "description": "Days remaining (positive) or days past expiry (negative)"
+        },
+        "message": {
+          "type": "string",
+          "description": "User-friendly notification message",
+          "maxLength": 500
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Whether staff has marked this notification as read"
+        },
+        "dedupKey": {
+          "type": "string",
+          "description": "Deterministic deduplication key to prevent repeating notifications",
+          "maxLength": 200
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of notification creation",
+          "maxLength": 50
+        }
+      },
+      "required": ["medicineId", "medicineName", "batchNumber", "expiryDate", "alertType", "isRead", "dedupKey"]
+    },
+    "HospitalSettings": {
+      "title": "HospitalSettings",
+      "description": "Hospital configuration and alert thresholds",
+      "type": "object",
+      "properties": {
+        "hospitalName": {
+          "type": "string",
+          "description": "Name of the Ayurvedic hospital or clinic",
+          "maxLength": 200
+        },
+        "expiringSoonThresholdDays": {
+          "type": "number",
+          "description": "Threshold in days for expiring soon status (default 7)"
+        },
+        "lowStockThreshold": {
+          "type": "number",
+          "description": "Threshold for low stock warnings (default 10)"
+        },
+        "timezone": {
+          "type": "string",
+          "description": "Default timezone for calculations (Asia/Kolkata)",
+          "maxLength": 50
+        },
+        "notifyExpired": {
+          "type": "boolean",
+          "description": "Notify when medicines are expired"
+        },
+        "notify7Days": {
+          "type": "boolean",
+          "description": "Notify 7 days prior to expiry"
+        },
+        "notify3Days": {
+          "type": "boolean",
+          "description": "Notify 3 days prior to expiry"
+        },
+        "notify1Day": {
+          "type": "boolean",
+          "description": "Notify 1 day prior to expiry"
+        },
+        "notifyDayOf": {
+          "type": "boolean",
+          "description": "Notify on the exact day of expiry"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update",
+          "maxLength": 50
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "UID of the user who updated settings",
+          "maxLength": 128
+        }
+      },
+      "required": ["hospitalName", "expiringSoonThresholdDays", "timezone"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Staff user profile in the hospital",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the staff member",
+          "maxLength": 200
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Full name of the staff member",
+          "maxLength": 150
+        },
+        "role": {
+          "type": "string",
+          "description": "Staff role (Pharmacist, Staff, Chief Doctor, Admin)",
+          "maxLength": 50
+        },
+        "department": {
+          "type": "string",
+          "description": "Ayurvedic Pharmacy or Hospital Department",
+          "maxLength": 100
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Account registration timestamp",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last profile update timestamp",
+          "maxLength": 50
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Audit and operational activity logs",
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "Action performed",
+          "maxLength": 100
+        },
+        "details": {
+          "type": "string",
+          "description": "Description of the operation details",
+          "maxLength": 1000
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user or 'system'",
+          "maxLength": 128
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "Email of the user or 'system'",
+          "maxLength": 200
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of event",
+          "maxLength": 50
+        }
+      },
+      "required": ["action", "details", "userId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/medicines/{medicineId}": {
+      "schema": "Medicine",
+      "description": "Collection of all Ayurvedic medicine batch records"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Collection of medicine expiry alerts"
+    },
+    "/hospitalSettings/{settingId}": {
+      "schema": "HospitalSettings",
+      "description": "Configuration settings for the hospital MERS instance"
+    },
+    "/userProfiles/{userId}": {
+      "schema": "UserProfile",
+      "description": "Hospital staff profiles"
+    },
+    "/activityLogs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Operational audit logs for inventory and background checks"
+    }
+  }
+}

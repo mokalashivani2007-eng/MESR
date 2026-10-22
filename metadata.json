@@ -1,0 +1,6 @@
+{
+  "name": "MERS - Medicine Expiry Reminder System",
+  "description": "Track Medicines. Detect Expiry. Protect Patients. Advanced expiry monitoring and inventory management for Ayurvedic hospitals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

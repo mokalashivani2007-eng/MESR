@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Deny Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Medicine validation helper
+    function isValidMedicine(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.batchNumber is string && data.batchNumber.size() > 0 && data.batchNumber.size() <= 100
+        && data.quantity is number && data.quantity >= 0
+        && data.expiryDate is string && data.expiryDate.size() >= 8 && data.expiryDate.size() <= 20;
+    }
+
+    match /medicines/{medicineId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(medicineId) && isValidMedicine(request.resource.data);
+      allow update: if isSignedIn() && isValidId(medicineId) && isValidMedicine(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(medicineId);
+    }
+
+    // Notification validation helper
+    function isValidNotification(data) {
+      return data.medicineId is string && data.medicineId.size() > 0 && data.medicineId.size() <= 128
+        && data.medicineName is string && data.medicineName.size() > 0 && data.medicineName.size() <= 200
+        && data.batchNumber is string && data.batchNumber.size() > 0 && data.batchNumber.size() <= 100
+        && data.alertType is string && data.alertType.size() <= 50
+        && data.isRead is bool
+        && data.dedupKey is string && data.dedupKey.size() <= 200;
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(notificationId) && isValidNotification(request.resource.data);
+      allow update: if isSignedIn() && isValidId(notificationId) && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead'])
+        || isValidNotification(request.resource.data)
+      );
+      allow delete: if isSignedIn() && isValidId(notificationId);
+    }
+
+    match /hospitalSettings/{settingId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(settingId)
+        && request.resource.data.hospitalName is string && request.resource.data.hospitalName.size() <= 200;
+      allow delete: if false;
+    }
+
+    match /userProfiles/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    match /activityLogs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(logId)
+        && request.resource.data.action is string && request.resource.data.action.size() <= 100;
+      allow update, delete: if false;
+    }
+  }
+}
